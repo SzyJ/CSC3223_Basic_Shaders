@@ -15,6 +15,17 @@
 using namespace NCL;
 using namespace CSC3223;
 
+RenderObject* Coursework2(Renderer &renderer) {
+	OGLMesh* m = new OGLMesh("cube.msh");
+	m->SetPrimitiveType(GeometryPrimitive::Triangles);
+	m->UploadToGPU();
+
+	RenderObject* object = new RenderObject(m);
+	renderer.AddRenderObject(object);
+
+	return object;
+}
+
 int main() {
 	Window*w = Window::CreateGameWindow("CSC3223 Coursework 2!");
 
@@ -24,10 +35,22 @@ int main() {
 
 	Renderer*	renderer = new Renderer(*w);
 
+	RenderObject* cube = Coursework2(*renderer);
+
+	renderer->SetProjectionMatrix(Matrix4::Perspective(1, 1000, w->GetScreenAspect(), 45.0f));
+
+	float rotation = 0.0f;
+
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)) {
 		float time = w->GetTimer()->GetTimeDelta();
-
+		rotation += time * 0.1f;
 		renderer->Update(time);
+
+		Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -10));
+
+		modelMat = modelMat * Matrix4::Rotation(rotation, Vector3(1, 1, 1));
+
+		cube->SetTransform(modelMat);
 
 		renderer->DrawString("OpenGL Rendering!", Vector2(10, 10));
 

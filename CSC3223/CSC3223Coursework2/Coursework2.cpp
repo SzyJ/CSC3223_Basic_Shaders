@@ -15,13 +15,29 @@
 using namespace NCL;
 using namespace CSC3223;
 
+OGLShader* getLightingShader() {
+	return new OGLShader("LightingVert.glsl", "LightingFrag.glsl");
+}
+
+OGLShader* getShrinkShader() {
+	return new OGLShader("ShrinkVert.glsl", "RasterisationFrag.glsl");
+}
+
 RenderObject* Coursework2(Renderer &renderer) {
-	OGLMesh* m = new OGLMesh("cube.msh");
+	OGLMesh* m = new OGLMesh("sphere.msh");
 	m->SetPrimitiveType(GeometryPrimitive::Triangles);
 	m->UploadToGPU();
 
 	RenderObject* object = new RenderObject(m);
+	object->SetShader(getLightingShader());
+
+
+	TextureBase* tex = OGLTexture::RGBATextureFromFilename("brick.PNG");
+	object->SetBaseTexture(tex);
+
 	renderer.AddRenderObject(object);
+
+	renderer.SetLightProperties(Vector3(0, 25, 0), Vector3(1.0f, 0.3f, 0.2f), 200.0f);
 
 	return object;
 }
@@ -33,7 +49,8 @@ int main() {
 		return -1;
 	}
 
-	Renderer*	renderer = new Renderer(*w);
+	Renderer* renderer = new Renderer(*w);
+	renderer->EnableDepthBuffer(true);
 
 	RenderObject* cube = Coursework2(*renderer);
 

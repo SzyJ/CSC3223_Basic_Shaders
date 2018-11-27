@@ -27,6 +27,7 @@ void Renderer::RenderFrame() {
 		if (!object->GetMesh()) {
 			continue;
 		}
+
 		if (objectShader == nullptr) {
 			objectShader = defaultShader;
 		}
@@ -39,6 +40,21 @@ void Renderer::RenderFrame() {
 			
 			glUniformMatrix4fv(projLocation, 1, false, (float*)&projMatrix);
 			glUniformMatrix4fv(viewLocation, 1, false, (float*)&viewMatrix);
+			
+			ApplyLightToShader(activeLight, activeShader);
+			
+			Matrix3 rotation = Matrix3(viewMatrix);
+			Vector3 invCamPos = viewMatrix.GetPositionVector();
+			Vector3 camPos = rotation * -invCamPos;
+			glUniform3fv(glGetUniformLocation(activeShader->GetProgramID(), "cameraPos"), 1, camPos.array);
+			
+
+			int timeLocation = glGetUniformLocation(activeShader->GetProgramID(), "time");
+
+			if (timeLocation >= 0) {
+				float totalTime = frameTimer.GetTotalTime();
+				glUniform1f(timeLocation, totalTime);
+			}
 		}
 
 		Matrix4 mat = object->GetTransform();
@@ -53,4 +69,21 @@ void Renderer::RenderFrame() {
 void Renderer::OnWindowResize(int w, int h)	{
 	OGLRenderer::OnWindowResize(w, h);
 	projMatrix = Matrix4::Orthographic(-1.0f, 1.0f, (float)currentWidth, 0.0f, 0.0f, (float)currentHeight);
+}
+
+void Renderer::SetLightProperties(Vector3 position, Vector3 colour, float radius) {
+	activeLight.position = position;
+	activeLight.colour = colour;
+	activeLight.radius = radius;}void Renderer::ApplyLightToShader(const Light &l, const OGLShader* s) {
+	glUniform3fv(glGetUniformLocation(s->GetProgramID(), "lightColour"), 1, (float *)& l.colour);
+	glUniform3fv(glGetUniformLocation(s->GetProgramID(), "lightPos"), 1, (float *)& l.position);
+	glUniform1f(glGetUniformLocation(s->GetProgramID(), "lightRadius"), l.radius);
+}
+
+void Renderer::EnableDepthBuffer(bool state) {
+	if (state) {
+		glEnable(GL_DEPTH_TEST);
+	} else {
+		glDisable(GL_DEPTH_TEST);
+	}
 }

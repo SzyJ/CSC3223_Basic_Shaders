@@ -9,6 +9,11 @@
 
 namespace NCL {
 	namespace CSC3223 {
+		struct Light {
+			Vector3 position;
+			float radius;
+			Vector3 colour;
+		};
 
 		class Renderer : public OGLRenderer
 		{
@@ -35,7 +40,10 @@ namespace NCL {
 				viewMatrix = m;
 			}
 
+			void SetLightProperties(Vector3 pos, Vector3 colour, float radius);
+			void EnableDepthBuffer(bool state);
 		protected:
+			GameTimer frameTimer;
 			void RenderNode(RenderObject* root);
 	
 			void OnWindowResize(int w, int h)	override;
@@ -47,6 +55,9 @@ namespace NCL {
 			Matrix4		viewMatrix;
 
 			vector<RenderObject*> renderObjects;
+
+			void ApplyLightToShader(const Light &l, const OGLShader * s);
+			Light activeLight;
 		};
 	}
 }

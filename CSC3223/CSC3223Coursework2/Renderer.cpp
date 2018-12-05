@@ -61,6 +61,8 @@ void Renderer::RenderFrame() {
 		glUniformMatrix4fv(modelLocation, 1, false, (float*)&mat);
 
 		BindTextureToShader(object->GetBaseTexture(), "mainTex", 0);
+		BindTextureToShader(object->GetSecondaryTexture(), "secondTex", 1);
+
 		BindMesh(object->GetMesh());
 		DrawBoundMesh();
 	}
@@ -86,4 +88,24 @@ void Renderer::EnableDepthBuffer(bool state) {
 	} else {
 		glDisable(GL_DEPTH_TEST);
 	}
+}
+
+void Renderer::SetAlphaBlendingState(bool state) {
+	if (state) {
+		glEnable(GL_BLEND);
+	}
+	else {
+		glDisable(GL_BLEND);
+	}}
+
+void Renderer::SetBlendToLinear() {
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void Renderer::SetBlendToAdditive() {
+	glBlendFunc(GL_ONE, GL_ONE);
+}
+
+void Renderer::SetBlendToInvert() {
+	glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
 }

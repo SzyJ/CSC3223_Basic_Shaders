@@ -20,24 +20,40 @@ OGLShader* getLightingShader() {
 }
 
 OGLShader* getShrinkShader() {
-	return new OGLShader("ShrinkVert.glsl", "RasterisationFrag.glsl");
+	return new OGLShader("ShrinkVert.glsl", "ShrinkFrag.glsl");
+}
+
+OGLShader* getFadeShader() {
+	return new OGLShader("FadeVert.glsl", "FadeFrag.glsl");
+}
+
+OGLShader* getTexBlendShader() {
+	return new OGLShader("TextureBlendVert.glsl", "TextureBlendFrag.glsl");
 }
 
 RenderObject* Coursework2(Renderer &renderer) {
-	OGLMesh* m = new OGLMesh("sphere.msh");
+	OGLMesh* m = new OGLMesh("cube.msh");
+	vector<Vector4> col;
+	col.reserve(m->GetIndexCount());
+	for (int i = 0; i < m->GetIndexCount(); i++) {
+		col.emplace_back(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+	m->SetVertexColours(col);
 	m->SetPrimitiveType(GeometryPrimitive::Triangles);
 	m->UploadToGPU();
 
 	RenderObject* object = new RenderObject(m);
-	object->SetShader(getLightingShader());
+	object->SetShader(getFadeShader());
 
+	TextureBase* doge = OGLTexture::RGBATextureFromFilename("doge.PNG");
+	TextureBase* brick = OGLTexture::RGBATextureFromFilename("brick.PNG");
 
-	TextureBase* tex = OGLTexture::RGBATextureFromFilename("brick.PNG");
-	object->SetBaseTexture(tex);
+	object->SetBaseTexture(doge);
+	object->SetSecondaryTexture(brick);
 
 	renderer.AddRenderObject(object);
 
-	renderer.SetLightProperties(Vector3(0, 25, 0), Vector3(1.0f, 0.3f, 0.2f), 200.0f);
+	renderer.SetLightProperties(Vector3(0, 25, 0), Vector3(1.0f, 1.0f, 1.0f), 200.0f);
 
 	return object;
 }
@@ -51,7 +67,7 @@ int main() {
 
 	Renderer* renderer = new Renderer(*w);
 	renderer->EnableDepthBuffer(true);
-
+	
 	RenderObject* cube = Coursework2(*renderer);
 
 	renderer->SetProjectionMatrix(Matrix4::Perspective(1, 1000, w->GetScreenAspect(), 45.0f));
@@ -59,6 +75,8 @@ int main() {
 	float rotation = 0.0f;
 
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)) {
+		renderer->SetAlphaBlendingState(true);
+		renderer->SetBlendToLinear();
 		float time = w->GetTimer()->GetTimeDelta();
 		rotation += time * 0.1f;
 		renderer->Update(time);

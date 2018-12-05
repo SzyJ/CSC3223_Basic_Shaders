@@ -6,6 +6,8 @@ uniform mat4 projMatrix = mat4(1.0f);
 
 uniform float time = 0.1f;
 
+const float FADE_TIME = 8.0f;
+
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec4 colour;
 layout(location = 2) in vec2 texCoord;
@@ -31,20 +33,16 @@ void applyLighting() {
 	OUT.normal = normalize(normalMatrix * normalize(normal));
 }
 
-void main(void) {
-    applyLighting();
-
-	float T = time * 0.18;
-	float acc = 7.0f;
-	float scale = 1 - pow(T, acc);
-
-	if (scale <= 0) {
-		scale = 0;
+void applyFade() {
+	float currentFade =  1.0f - (time / FADE_TIME);
+	if (currentFade < 0) {
+		currentFade = 0;
 	}
 
-	mat4 mvp = (projMatrix * viewMatrix * modelMatrix);
-	gl_Position = mvp * vec4(position * vec3(scale, scale, scale), 1.0);
-    
-	OUT.texCoord = texCoord;
-	OUT.colour = colour;
+	OUT.colour.w = 0.5f;
+}
+
+void main(void) {
+    applyLighting();
+	//applyFade();
 }

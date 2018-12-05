@@ -36,6 +36,14 @@ namespace NCL {
 				return texture;
 			}
 
+			void SetSecondaryTexture(TextureBase* t) {
+				secondaryTexture = t;
+			}
+
+			TextureBase* GetSecondaryTexture() const {
+				return secondaryTexture;
+			}
+
 
 			void SetShader(ShaderBase* s) {
 				shader = s;
@@ -48,6 +56,7 @@ namespace NCL {
 		protected:
 			MeshGeometry*	mesh;
 			TextureBase*	texture;
+			TextureBase*	secondaryTexture;
 			ShaderBase*		shader;
 			Matrix4			transform;
 		};

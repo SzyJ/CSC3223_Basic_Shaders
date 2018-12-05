@@ -42,6 +42,12 @@ namespace NCL {
 
 			void SetLightProperties(Vector3 pos, Vector3 colour, float radius);
 			void EnableDepthBuffer(bool state);
+			void SetAlphaBlendingState(bool state);
+
+			void SetBlendToLinear();
+			void SetBlendToAdditive();
+			void SetBlendToInvert();
+
 		protected:
 			GameTimer frameTimer;
 			void RenderNode(RenderObject* root);
